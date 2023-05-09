@@ -1,0 +1,68 @@
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class Main {
+  public static void main(String[] args) {
+    String[] productos= {"H12345E15", "M00000E00", "A12345E15", "H12345E11", "B00011A02", "B00011A11", "h12345E15", "B1111A04", "B111111A06"};
+    int numValidos = 0;
+    int numValidosConCodigoControl = 0;
+    int numValidosSinCodigoControl = 0;
+    int numInvalidos = 0;
+    for (String producto : productos) {
+      boolean valido = false;
+      boolean validoCodigoControl = false;
+      boolean esHombre = false;
+      boolean esMujer = false;
+      boolean esBebe = false;
+      boolean esEuropa = false;
+      boolean esAsia = false;
+      // Validar el código de producto
+      Pattern patron = Pattern.compile("^[HMB]\\d{5}[EA]\\d{2}$");
+      Matcher matcher = patron.matcher(producto);
+      if (matcher.matches()) {
+        valido = true;
+        // Identificar el tipo de cliente
+        char tipoCliente = producto.charAt(0);
+        if (tipoCliente == 'H') {
+          esHombre = true;
+        } else if (tipoCliente == 'M') {
+          esMujer = true;
+        } else if (tipoCliente == 'B') {
+          esBebe = true;
+        }
+        // Identificar el origen de fabricación
+        char origen = producto.charAt(7);
+        if (origen == 'E') {
+          esEuropa = true;
+        } else if (origen == 'A') {
+          esAsia = true;
+        }
+        // Validar el código de control
+        int codigoControl = Integer.parseInt(producto.substring(1, 6));
+        int sumaDigitos = 0;
+        while (codigoControl > 0) {
+          sumaDigitos += codigoControl % 10;
+          codigoControl /= 10;
+        }
+        String codigoControlStr = sumaDigitos < 10 ? "0" + sumaDigitos : "" + sumaDigitos;
+        if (codigoControlStr.equals(producto.substring(8))) {
+          validoCodigoControl = true;
+        }
+      }
+      if (valido) {
+        numValidos++;
+        if (validoCodigoControl) {
+          numValidosConCodigoControl++;
+        } else {
+          numValidosSinCodigoControl++;
+        }
+      } else {
+        numInvalidos++;
+      }
+    }
+    System.out.println("Número de productos válidos: " + numValidos);
+    System.out.println("Número de productos con código de control válido: " + numValidosConCodigoControl);
+    System.out.println("Número de productos con código de control inválido: " + numValidosSinCodigoControl);
+    System.out.println("Número de productos inválidos: " + numInvalidos);
+  }
+}
